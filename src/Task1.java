@@ -1,5 +1,7 @@
 import java.io.File;
 import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -21,6 +23,7 @@ import javafx.stage.Stage;
 
 public class Task1 extends Application {
     // Fields for MySQL database.
+    static final String BLANK = "";
     static final String DB_NAME = "TaxManagementSystem";
     static final String TABLE_NAME = "TaxResult";
     static final String DB_URL = "jdbc:mysql://localhost:3306?";
@@ -62,18 +65,18 @@ public class Task1 extends Application {
         gridPane.add(incomeLabel, 0, 2);
 
         TextField incomeField = new TextField();
-
+        incomeField.setAlignment(Pos.CENTER_RIGHT);
         gridPane.add(incomeField, 1, 2);
 
         Label taxLabel = new Label("Tax:");
         gridPane.add(taxLabel, 0, 3);
 
         TextField taxField = new TextField();
-
         taxField.setEditable(false);
+        taxField.setAlignment(Pos.CENTER_RIGHT);
         gridPane.add(taxField, 1, 3);
 
-        // maybe add a seperate hbox for these buttons to account for width of textfields
+        // maybe add a seperate hbox for these buttons to account for width of textfields above
         Button buttonCalculate = new Button("Calculate");
         gridPane.add(buttonCalculate, 2, 5);
 
@@ -89,7 +92,8 @@ public class Task1 extends Application {
         buttonCalculate.setOnAction(actionEvent -> {
             String taxableIncome = incomeField.getText();
             if (TaxController.BLANK.equals(taxableIncome)) {
-                this.alert("Input Missing", "Please enter a valid taxable income amount.", AlertType.ERROR);
+                this.alert("Input Missing",
+                        "Please enter a valid taxable income amount.", AlertType.ERROR);
             } else {
                 double calculatedTax = 0;
                 double taxableIncomeDbl = Double.parseDouble(taxableIncome);
@@ -97,12 +101,73 @@ public class Task1 extends Application {
                     if (taxableIncomeDbl >= range.getLowerLimit() && taxableIncomeDbl <= range.getUpperLimit()) {
                         TaxModel taxModel = TaxController.dataMap.get(range);
                         System.out.println("taxmodel:"+ taxModel);
-                        calculatedTax = taxModel.getBaseTax() + (taxableIncomeDbl - taxModel.getOverLimit()) * (taxModel.getCentsPerDollar());
+                        calculatedTax = taxModel.getBaseTax()
+                                + (taxableIncomeDbl - taxModel.getOverLimit()) * (taxModel.getCentsPerDollar());
                     }
                 }
-                taxField.setText("$"+ calculatedTax);
+                taxField.setText(String.valueOf(calculatedTax));
             }
+        });
 
+        buttonUpdate.setOnAction(actionEvent -> {
+            String id = idField.getText();
+            String finYear = financialYearField.getText();
+            String taxableIncome = incomeField.getText();
+            String tax = taxField.getText();
+            if (BLANK.equals(id)){
+                this.alert("Input Missing",
+                        "Please enter a valid ID.", AlertType.ERROR);
+            }
+            else if (BLANK.equals(finYear)){
+                this.alert("Input Missing",
+                        "Please enter a valid financial year.", AlertType.ERROR);
+            }
+            else if (BLANK.equals(taxableIncome)){
+                this.alert("Input Missing",
+                        "Please enter a valid taxable income amount.", AlertType.ERROR);
+            }
+            else if (BLANK.equals(tax)){
+                this.alert("Calculation Error",
+                        "Tax must be calculated prior to updating the record.", AlertType.ERROR);
+            }
+            else {
+                dbHandler.update(id, finYear, taxableIncome, tax);
+            }
+        });
+
+        buttonSearch.setOnAction(actionEvent -> {
+            String id = idField.getText();
+            if (BLANK.equals(id)){
+                this.alert("Input Missing",
+                        "Please enter a valid ID.", AlertType.ERROR);
+            }
+            else {
+                try {
+                    ResultSet resultSet = dbHandler.search(id);
+                    while (resultSet.next()){
+                        financialYearField.setText(String.valueOf(resultSet.getInt(1)));
+                        incomeField.setText(String.valueOf(resultSet.getDouble(2)));
+                        taxField.setText("$"+ resultSet.getDouble(3));
+                    }
+                } catch(SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        buttonDelete.setOnAction(actionEvent -> {
+            String id = idField.getText();
+            if (BLANK.equals(id)){
+                this.alert("Input Missing",
+                        "Please enter a valid ID.", AlertType.ERROR);
+            }
+            else {
+                dbHandler.delete(id);
+                idField.clear();
+                financialYearField.clear();
+                incomeField.clear();
+                taxField.clear();
+            }
         });
 
         Scene scene = new Scene(gridPane, 500, 275);
@@ -123,7 +188,7 @@ public class Task1 extends Application {
         launch(args);
     }
 
-    public static DBHandler setupDatabaseConnection(String databaseName, String tableName, String url, String username, String password) {
+    public DBHandler setupDatabaseConnection(String databaseName, String tableName, String url, String username, String password) {
         // This database setup can likely be its own function.
         // Create new DBHandler Object and specify the required parameters.
         DBHandler dbHandler = new DBHandler(url, username, password);
@@ -135,26 +200,16 @@ public class Task1 extends Application {
         try {
             dbHandler.createDatabase(databaseName, tableName);
         } catch(Exception e) {
-            // Ideally this would throw the exception to the class that called it,
-            // instead of creating an error dialog in this catch statement.
-            showDialogWindow(Alert.AlertType.ERROR,
-                    "A fatal error occured while trying to create the required " +
-                            "schema and tables within the database.",
-                    "I have no idea what you did to break everything this badly.",
-                    "Fatal Error.");
             e.printStackTrace();
+            this.alert("Fatal Error",
+                    "An unresolvable error occured while trying to establish" +
+                            " a connection to the SQL Database." +
+                            "Please verify that the SQL server is configured correctly.",
+                    AlertType.ERROR);
         }
         // Return the Connection object.
         return dbHandler;
     }
 
-    // Function to simplify making alerts.
-    public static void showDialogWindow(Alert.AlertType alertType, String contentText, String headerText, String titleText) {
-        Alert alert = new Alert(alertType);
-        alert.setContentText(contentText);
-        alert.setHeaderText(headerText);
-        alert.setTitle(titleText);
-        alert.show();
-    }
 }
 

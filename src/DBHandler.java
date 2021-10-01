@@ -68,8 +68,8 @@ public class DBHandler {
                 + tableName
                 + " (ID VARCHAR(255) NOT NULL,"
                 + " financial_year VARCHAR(255),"
-                + " taxable_income DOUBLE(50,2),"
-                + " tax DOUBLE(50,2),"
+                + " taxable_income DOUBLE(15,2),"
+                + " tax DOUBLE(15,2),"
                 + " PRIMARY KEY (ID)"
                 + ")";
         try {
@@ -101,7 +101,7 @@ public class DBHandler {
                             + databaseName
                             + "."
                             + tableName
-                            + " (ID, Financial Year, Taxable Income, Tax ) VALUES (?, ?, ?, ?)");
+                            + " (ID, financial_year, taxable_income, tax) VALUES (?, ?, ?, ?)");
             // Parse variables into the SQL statement.
             preparedStatement.setString(1, id);
             preparedStatement.setString(2, finYear);
@@ -120,7 +120,7 @@ public class DBHandler {
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(
                     "SELECT "
-                            + "Financial Year, Taxable Income, Tax"
+                            + "financial_year, taxable_income, tax"
                             + " FROM "
                             + tableName
                             + " WHERE "
@@ -130,7 +130,6 @@ public class DBHandler {
             );
             preparedStatement.setString(1, id);
             resultSet = preparedStatement.executeQuery();
-
         }
         catch(SQLException e) {
             e.printStackTrace();
@@ -150,7 +149,7 @@ public class DBHandler {
                             + "ID = ?"
             );
             preparedStatement.setString(1, id);
-            preparedStatement.executeQuery();
+            preparedStatement.executeUpdate();
         } catch(SQLException e) {
             e.printStackTrace();
         }
