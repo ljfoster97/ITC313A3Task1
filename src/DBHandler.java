@@ -4,12 +4,13 @@ import java.sql.*;
  * Author: Lyndon Foster.
  * Course: ITC313 - Programming in Java 2.
  * Assessment Title: Assessment Item 3, Task 1 - Tax Management Database Application
- * Date: September 26th, 2021.
+ * Date: October 16th, 2021.
+ *
+ * Object for performing database functions,
+ * including establishing a connection, creating a schema and table.
  */
 
-// Object for encapsulation of database functions.
 public class DBHandler {
-
     // Fields.
     private final String url;
     private final String username;
@@ -18,14 +19,22 @@ public class DBHandler {
     private String tableName;
     private Connection connection;
 
-    // Constructor.
+    /**
+     * Constructor for DBHandler object.
+     * @param url String representing the URL of the SQL server.
+     * @param username Username of the account to login to the SQL server.
+     * @param password Password of the specified account.
+     */
     public DBHandler(String url, String username, String password) {
         this.url = url;
         this.username = username;
         this.password = password;
     }
 
-    // Calls getConnection method from DriverManager class and parses in this objects fields as parameters.
+    /**
+     * Calls getConnection method from DriverManager class
+     * and parses in this objects fields as parameters.
+     */
     public void establishConnection() {
         try {
             connection = DriverManager.getConnection(this.url, this.username, this.password);
@@ -34,12 +43,17 @@ public class DBHandler {
         }
     }
 
-    // Provides a usable connection for performing higher level database functions.
+    /**
+     * Provides a usable connection for performing higher level database functions.
+     * @return instance of Connection object.
+     */
     public Connection getConnection() {
         return this.connection;
     }
 
-    // Closes the connection to the database.
+    /**
+     * Closes the connection to the server.
+     */
     public void closeConnection() {
         try {
             connection.close();
@@ -48,12 +62,14 @@ public class DBHandler {
         }
     }
 
-    // Ideally for this DBHandler Class there would be dedicated functions for creating
-    // and updating schemas and tables on the MySQL server.
-    // Given the limited scope of this task, it makes more sense to have a
-    // single function that can create the initial schema and results table.
-    // However this could easily be expanded to allow for multiple tables so
-    // that data isn't being overwritten each time the raw data is read in.
+    /**
+     * Creates a new schema and table using the specified names.
+     * @param databaseName The name of the schema to create.
+     *                     Stored as field for this instance of DBHandler.
+     * @param tableName The name of the table to create within that schema.
+     *                  Stored as field for this instance of DBHandler.
+     * @throws Exception Raises SQLException to the class that called the method for handling.
+     */
     public void createDatabase(String databaseName, String tableName) throws Exception {
 
         this.databaseName = databaseName;
@@ -91,6 +107,14 @@ public class DBHandler {
         }
     }
 
+    /**
+     * Inserts a new financial record into the schema and table
+     * that is associated with this instance of the DBHandler object.
+     * @param id ID of the record.
+     * @param finYear Financial year of the record.
+     * @param taxableIncome The gross income amount.
+     * @param tax The amount of tax payable calculated from the gross amount.
+     */
     public void update(String id, String finYear, String taxableIncome, String tax){
         try {
             // Create a new PreparedStatement to insert these values into the MySQL DB.
@@ -115,6 +139,11 @@ public class DBHandler {
         }
     }
 
+    /**
+     * Looks for an existing record within the database based on the ID provided.
+     * @param id ID of the record.
+     * @return ResultSet containing the row of data corresponding to the ID.
+     */
     public ResultSet search(String id){
         ResultSet resultSet = null;
         try {
@@ -135,11 +164,14 @@ public class DBHandler {
             e.printStackTrace();
         }
         return resultSet;
-
     }
 
+    /**
+     * Deletes any record in the table that matches the corresponding ID.
+     * @param id ID of the record.
+     */
     public void delete(String id){
-        try{
+        try {
             PreparedStatement preparedStatement = connection.prepareStatement(
                     "DELETE FROM "
                             + tableName
@@ -154,5 +186,4 @@ public class DBHandler {
             e.printStackTrace();
         }
     }
-
 }

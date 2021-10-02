@@ -21,6 +21,12 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 
+/**
+ * Author: Lyndon Foster.
+ * Course: ITC313 - Programming in Java 2.
+ * Assessment Title: Assessment Item 3, Task 1 - Tax Management Database Application
+ * Date: October 16th, 2021.
+ */
 public class Task1 extends Application {
     // Fields for MySQL database.
     static final String BLANK = "";
@@ -100,9 +106,15 @@ public class Task1 extends Application {
                 for (IncomeRange range: TaxController.dataMap.keySet()) {
                     if (taxableIncomeDbl >= range.getLowerLimit() && taxableIncomeDbl <= range.getUpperLimit()) {
                         TaxModel taxModel = TaxController.dataMap.get(range);
-                        System.out.println("taxmodel:"+ taxModel);
                         calculatedTax = taxModel.getBaseTax()
                                 + (taxableIncomeDbl - taxModel.getOverLimit()) * (taxModel.getCentsPerDollar());
+                        System.out.println(taxableIncome);
+                        System.out.println(taxableIncomeDbl);
+                        System.out.println(taxModel.toString());
+                        System.out.println(taxModel.getBaseTax());
+                        System.out.println(taxModel.getOverLimit());
+                        System.out.println(taxModel.getCentsPerDollar());
+                        System.out.println(calculatedTax);
                     }
                 }
                 taxField.setText(String.valueOf(calculatedTax));
@@ -176,6 +188,16 @@ public class Task1 extends Application {
         stage.show();
     }
 
+    public static void main(String[] args) {
+        launch(args);
+    }
+
+    /**
+     * Creates an alert dialog.
+     * @param title Title of the dialog window.
+     * @param message Message to display within the dialog window.
+     * @param alertType Alert type for the dialog window.
+     */
     public void alert(String title, String message, AlertType alertType) {
         Alert alert = new Alert(alertType);
         alert.setTitle(title);
@@ -184,10 +206,19 @@ public class Task1 extends Application {
         alert.showAndWait();
     }
 
-    public static void main(String[] args) {
-        launch(args);
-    }
-
+    /**
+     * Creates a new DBHandler object with the specified credentials,
+     * calls the DBHandler.establishConnection() method to connection to the specified SQL server,
+     * Returns a connection object,
+     * Creates a new schema and table with the specified names,
+     * returns an instance of the DBHandler object to perform further SQL operations.
+     * @param databaseName Name of the schema.
+     * @param tableName Name of the table.
+     * @param url URL of the SQL server.
+     * @param username Username to connect to the server with.
+     * @param password Password for the specified user.
+     * @return Instance of DBHandler.java
+     */
     public DBHandler setupDatabaseConnection(String databaseName, String tableName, String url, String username, String password) {
         // This database setup can likely be its own function.
         // Create new DBHandler Object and specify the required parameters.

@@ -1,25 +1,51 @@
+/**
+ * Author: Lyndon Foster.
+ * Course: ITC313 - Programming in Java 2.
+ * Assessment Title: Assessment Item 3, Task 1 - Tax Management Database Application
+ * Date: October 16th, 2021.
+ *
+ * Data structure for the income range of the users tax calculations.
+ */
 public class IncomeRange {
+    // Fields.
     private double lowerLimit;
     private double upperLimit;
+
+    // Getter & setter methods.
     public double getLowerLimit() {
         return lowerLimit;
     }
+
     public void setLowerLimit(double lowerLimit) {
         this.lowerLimit = lowerLimit;
     }
+
     public double getUpperLimit() {
         return upperLimit;
     }
+
     public void setUpperLimit(double upperLimit) {
         this.upperLimit = upperLimit;
     }
+
     public IncomeRange(double lowerLimit, double upperLimit) {
         this.lowerLimit = lowerLimit;
         this.upperLimit = upperLimit;
     }
+
     public IncomeRange() {
     }
 
+    @Override
+    public String toString() {
+        return "IncomeRange{" +
+                "lowerLimit=" + lowerLimit +
+                ", upperLimit=" + upperLimit +
+                '}';
+    }
+
+    // Override .hashcode() to correctly store the upper and lower limit values
+    // when adding to the linkedhashmap.
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -31,6 +57,9 @@ public class IncomeRange {
         result = prime * result + (int) (temp ^ (temp >>> 32));
         return result;
     }
+
+    // Override .equals() method to compare static income range from
+    // instances of this classes values correctly.
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -49,7 +78,5 @@ public class IncomeRange {
         else {
             return Double.doubleToLongBits(upperLimit) == Double.doubleToLongBits(other.upperLimit);
         }
-
     }
-
 }

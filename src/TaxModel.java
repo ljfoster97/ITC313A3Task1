@@ -1,3 +1,11 @@
+/**
+ * Author: Lyndon Foster.
+ * Course: ITC313 - Programming in Java 2.
+ * Assessment Title: Assessment Item 3, Task 1 - Tax Management Database Application
+ * Date: October 16th, 2021.
+ *
+ * Object for modelling tax rates.
+ */
 public class TaxModel {
     private double centsPerDollar;
     private double baseTax;
