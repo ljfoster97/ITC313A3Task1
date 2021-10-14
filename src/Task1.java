@@ -2,6 +2,7 @@ import java.io.File;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -143,7 +144,14 @@ public class Task1 extends Application {
                         "Tax must be calculated prior to updating the record.", AlertType.ERROR);
             }
             else {
-                dbHandler.update(id, finYear, taxableIncome, tax);
+                try {
+                    dbHandler.update(id, finYear, taxableIncome, tax);
+                }
+                catch(SQLIntegrityConstraintViolationException e) {
+                    this.alert("SQL Error", "The data matches an existing record.", AlertType.ERROR);
+                } catch(SQLException e) {
+                    e.printStackTrace();
+                }
             }
         });
 
@@ -156,6 +164,9 @@ public class Task1 extends Application {
             else {
                 try {
                     ResultSet resultSet = dbHandler.search(id);
+                    if (! resultSet.next()){
+                        System.out.println("empty");
+                    }
                     while (resultSet.next()){
                         financialYearField.setText(String.valueOf(resultSet.getInt(1)));
                         incomeField.setText(String.valueOf(resultSet.getDouble(2)));

@@ -16,28 +16,6 @@ import java.util.regex.Pattern;
  * LinkedHashMap data structure for the relation between tax rates and income ranges.
  */
 public class TaxController {
-    private double lowerThresholdA;
-    private double lowerThresholdB;
-    private double lowerThresholdC;
-    private double lowerThresholdD;
-    private double lowerThresholdE;
-    private double thresholdA;
-    private double thresholdB;
-    private double thresholdC;
-    private double thresholdD;
-    private double thresholdE;
-    private double taxRateA;
-    private double taxRateB;
-    private double taxRateC;
-    private double taxRateD;
-    private double taxRateE;
-    private double baseTaxC;
-    private double baseTaxD;
-    private double baseTaxE;
-    private double perB;
-    private double perC;
-    private double perD;
-    private double perE;
 
     public static final String BLANK = "";
     public static final String TAXRATESPATH = "taxrates.txt";
@@ -91,65 +69,65 @@ public class TaxController {
                 // The number of values in each row differs, so we need to account for that.
                 if(rowIndex == 1){
                     // DO VALIDATION FOR BASETAX AND PERAMOUNT ON FIRST LINE
-                    lowerThresholdA = doubleArray[0];
-                    thresholdA = doubleArray[1];
+                    double lowerThresholdA = doubleArray[0];
+                    double thresholdA = doubleArray[1];
                     // All taxrates are in cents, so the double value needs to be divided by 100.
-                    taxRateA = doubleArray[2]/100d;
+                    double taxRateA = doubleArray[2] / 100d;
 
                     // Create a new TaxModel object with the tax rate,
                     // base tax amount, threshold amount and per amount.
-                    taxModel = new TaxModel(taxRateA,0,thresholdA,1);
+                    taxModel = new TaxModel(taxRateA,0, thresholdA,1);
                     // Create a new IncomeRange object with the lower and upper income ranges.
-                    incomeRange = new IncomeRange(lowerThresholdA,thresholdA);
+                    incomeRange = new IncomeRange(lowerThresholdA, thresholdA);
 
                     // Add both objects to the LinkedHashMap.
                     dataMap.put(incomeRange,taxModel);
 
                 } else if(rowIndex == 2){
                     // DO VALIDATION FOR BASETAX ON SECOND LINE
-                    lowerThresholdB = doubleArray[0];
-                    thresholdB = doubleArray[1];
-                    taxRateB = doubleArray[2]/100d;
-                    perB = doubleArray[3];
+                    double lowerThresholdB = doubleArray[0];
+                    double thresholdB = doubleArray[1];
+                    double taxRateB = doubleArray[2] / 100d;
+                    double perB = doubleArray[3];
 
-                    taxModel = new TaxModel(taxRateB,0,thresholdB, perB);
-                    incomeRange = new IncomeRange(lowerThresholdB,thresholdB);
+                    taxModel = new TaxModel(taxRateB,0, thresholdB, perB);
+                    incomeRange = new IncomeRange(lowerThresholdB, thresholdB);
 
                     dataMap.put(incomeRange,taxModel);
                     // REMOVE REDUNDANT ELIFS
                 } else if(rowIndex == 3){
-                    lowerThresholdC = doubleArray[0];
-                    thresholdC = doubleArray[1];
-                    baseTaxC = doubleArray[2];
-                    taxRateC = doubleArray[3]/100d;
-                    perC = doubleArray[4];
+                    double lowerThresholdC = doubleArray[0];
+                    double thresholdC = doubleArray[1];
+                    double baseTaxC = doubleArray[2];
+                    double taxRateC = doubleArray[3] / 100d;
+                    double perC = doubleArray[4];
 
-                    taxModel = new TaxModel(taxRateC,baseTaxC,thresholdC, perC);
-                    incomeRange = new IncomeRange(lowerThresholdC,thresholdC);
+                    taxModel = new TaxModel(taxRateC, baseTaxC, thresholdC, perC);
+                    incomeRange = new IncomeRange(lowerThresholdC, thresholdC);
 
                     dataMap.put(incomeRange,taxModel);
 
                 } else if(rowIndex == 4){
-                    lowerThresholdD = doubleArray[0];
-                    thresholdD = doubleArray[1];
-                    baseTaxD = doubleArray[2];
-                    taxRateD = doubleArray[3]/100d;
-                    perD = doubleArray[4];
+                    double lowerThresholdD = doubleArray[0];
+                    double thresholdD = doubleArray[1];
+                    double baseTaxD = doubleArray[2];
+                    double taxRateD = doubleArray[3] / 100d;
+                    double perD = doubleArray[4];
 
-                    taxModel = new TaxModel(taxRateD,baseTaxD,lowerThresholdD,perD);
-                    incomeRange = new IncomeRange(lowerThresholdD,thresholdD);
+                    taxModel = new TaxModel(taxRateD, baseTaxD, lowerThresholdD, perD);
+                    incomeRange = new IncomeRange(lowerThresholdD, thresholdD);
 
                     dataMap.put(incomeRange,taxModel);
                 } else if(rowIndex == 5){
-                    lowerThresholdE = doubleArray[0];
+                    double lowerThresholdE = doubleArray[0];
                     // THRESHOLD INFINITE?
-                    thresholdE = 1000000;
-                    baseTaxE = doubleArray[1];
-                    taxRateE = doubleArray[2]/100d;
-                    perE = doubleArray[3];
+                    double thresholdE = 1000000;
+                    double baseTaxE = doubleArray[1];
+                    double taxRateE = doubleArray[2] / 100d;
+                    double perE = doubleArray[3];
 
-                    taxModel = new TaxModel(taxRateE,baseTaxE,lowerThresholdE,perE);
-                    incomeRange = new IncomeRange(lowerThresholdE,thresholdE);
+                    taxModel = new TaxModel(taxRateE, baseTaxE, lowerThresholdE, perE);
+                    incomeRange = new IncomeRange(lowerThresholdE, thresholdE);
 
                     dataMap.put(incomeRange,taxModel);
                 } else{

@@ -115,27 +115,39 @@ public class DBHandler {
      * @param taxableIncome The gross income amount.
      * @param tax The amount of tax payable calculated from the gross amount.
      */
-    public void update(String id, String finYear, String taxableIncome, String tax){
+    public void update(String id, String finYear, String taxableIncome, String tax) throws SQLException {
         try {
             // Create a new PreparedStatement to insert these values into the MySQL DB.
             // '?' are placeholders that can then be set to variables.
             // This could just be a function within the DBHandler class itself.
             PreparedStatement preparedStatement = connection.prepareStatement(
-                    "INSERT INTO "
+                    "INSERT OR IGNORE INTO "
                             + databaseName
                             + "."
                             + tableName
-                            + " (ID, financial_year, taxable_income, tax) VALUES (?, ?, ?, ?)");
+                            + " (ID, financial_year, taxable_income, tax) VALUES (?, ?, ?, ?)"
+                            + "UPDATE "
+                            + databaseName
+                            + "."
+                            + tableName
+                            + " SET financial_year = ?,taxable_income = ?,tax=?"
+                            + " WHERE ID = ?"
+                                    );
             // Parse variables into the SQL statement.
             preparedStatement.setString(1, id);
             preparedStatement.setString(2, finYear);
             preparedStatement.setString(3, taxableIncome);
             preparedStatement.setString(4, tax);
+            preparedStatement.setString(5, finYear);
+            preparedStatement.setString(6, taxableIncome);
+            preparedStatement.setString(7, tax);
+            preparedStatement.setString(8, id);
             // Execute the SQL statement.
             preparedStatement.execute();
             // Catch statement for any SQL errors.
-        } catch(SQLException e) {
+        } catch(Exception e) {
             e.printStackTrace();
+            throw e;
         }
     }
 
