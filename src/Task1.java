@@ -3,10 +3,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -14,11 +11,8 @@ import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
+import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 
@@ -40,11 +34,14 @@ public class Task1 extends Application {
 
     @Override
     public void start(Stage stage) {
+        // Create a dbHandler object for performing DB operations.
         DBHandler dbHandler = setupDatabaseConnection(DB_NAME, TABLE_NAME,
                 DB_URL, DB_USERNAME, DB_PASSWORD);
 
+        // Create a new taxController object and read in the tax rates from taxrates.txt file.
         TaxController taxController = new TaxController();
         taxController.getTaxRates();
+
 
         stage.setTitle("Tax Management Application");
  
@@ -83,7 +80,7 @@ public class Task1 extends Application {
         taxField.setAlignment(Pos.CENTER_RIGHT);
         gridPane.add(taxField, 1, 3);
 
-        // maybe add a seperate hbox for these buttons to account for width of textfields above
+        // maybe add a separate HBox for these buttons to account for width of Textfields above
         Button buttonCalculate = new Button("Calculate");
         gridPane.add(buttonCalculate, 2, 5);
 
@@ -102,6 +99,7 @@ public class Task1 extends Application {
                 this.alert("Input Missing",
                         "Please enter a valid taxable income amount.", AlertType.ERROR);
             } else {
+                // TRY CATCH FOR INPUT VALIDATION
                 double calculatedTax = 0;
                 double taxableIncomeDbl = Double.parseDouble(taxableIncome);
                 for (IncomeRange range: TaxController.dataMap.keySet()) {
@@ -109,13 +107,6 @@ public class Task1 extends Application {
                         TaxModel taxModel = TaxController.dataMap.get(range);
                         calculatedTax = taxModel.getBaseTax()
                                 + (taxableIncomeDbl - taxModel.getOverLimit()) * (taxModel.getCentsPerDollar());
-                        System.out.println(taxableIncome);
-                        System.out.println(taxableIncomeDbl);
-                        System.out.println(taxModel.toString());
-                        System.out.println(taxModel.getBaseTax());
-                        System.out.println(taxModel.getOverLimit());
-                        System.out.println(taxModel.getCentsPerDollar());
-                        System.out.println(calculatedTax);
                     }
                 }
                 taxField.setText(String.valueOf(calculatedTax));
@@ -164,13 +155,15 @@ public class Task1 extends Application {
             else {
                 try {
                     ResultSet resultSet = dbHandler.search(id);
-                    if (! resultSet.next()){
-                        System.out.println("empty");
-                    }
-                    while (resultSet.next()){
+                    if (resultSet.next()){
+                        System.out.println("Retrieving Data...");
                         financialYearField.setText(String.valueOf(resultSet.getInt(1)));
                         incomeField.setText(String.valueOf(resultSet.getDouble(2)));
                         taxField.setText("$"+ resultSet.getDouble(3));
+                    }
+                    else if (!resultSet.next()){
+                        alert("Record not found.","No record could be found with the corresponding ID.",
+                                AlertType.ERROR);
                     }
                 } catch(SQLException e) {
                     e.printStackTrace();
@@ -185,11 +178,20 @@ public class Task1 extends Application {
                         "Please enter a valid ID.", AlertType.ERROR);
             }
             else {
-                dbHandler.delete(id);
-                idField.clear();
-                financialYearField.clear();
-                incomeField.clear();
-                taxField.clear();
+                Alert alertConfirmation = new Alert(AlertType.CONFIRMATION);
+                alertConfirmation.setTitle("Confirmation Required.");
+                alertConfirmation.setContentText("This will permanently remove the record from the database." +
+                        "\nAre you sure you wish to continue?");
+                Optional<ButtonType> result = alertConfirmation.showAndWait();
+                 if (result.get() == ButtonType.OK){
+                    // Delete the record if user confirms.
+                    dbHandler.delete(id);
+                    idField.clear();
+                    financialYearField.clear();
+                    incomeField.clear();
+                    taxField.clear();
+                // Do nothing if result == cancel or no result, not necessary to check them.
+                }
             }
         });
 

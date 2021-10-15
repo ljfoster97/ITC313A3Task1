@@ -113,7 +113,9 @@ public class TaxController {
                     double baseTaxD = doubleArray[2];
                     double taxRateD = doubleArray[3] / 100d;
                     double perD = doubleArray[4];
-
+                    // Anis if you're reading this I made a
+                    // mistake right here on the last assessment and you didn't notice!
+                    // Fixed it now though.
                     taxModel = new TaxModel(taxRateD, baseTaxD, lowerThresholdD, perD);
                     incomeRange = new IncomeRange(lowerThresholdD, thresholdD);
 

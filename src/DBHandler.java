@@ -92,12 +92,15 @@ public class DBHandler {
             Statement statement = connection.createStatement();
 
             statement.executeUpdate(sqlCreateDatabase);
+            System.out.println(sqlCreateDatabase);
             System.out.println("Created database: " + databaseName);
 
             statement.executeUpdate(sqlSelectDatabase);
+            System.out.println(sqlSelectDatabase);
             System.out.println("Selected database: " + databaseName);
 
             statement.executeUpdate(sqlCreateTable);
+            System.out.println(sqlCreateTable);
             System.out.println("Created table: " + tableName);
 
         } catch(SQLException e) {
@@ -120,30 +123,37 @@ public class DBHandler {
             // Create a new PreparedStatement to insert these values into the MySQL DB.
             // '?' are placeholders that can then be set to variables.
             // This could just be a function within the DBHandler class itself.
-            PreparedStatement preparedStatement = connection.prepareStatement(
-                    "INSERT OR IGNORE INTO "
+            PreparedStatement insertStatement = connection.prepareStatement(
+                    "INSERT IGNORE INTO "
                             + databaseName
                             + "."
                             + tableName
-                            + " (ID, financial_year, taxable_income, tax) VALUES (?, ?, ?, ?)"
-                            + "UPDATE "
-                            + databaseName
-                            + "."
-                            + tableName
-                            + " SET financial_year = ?,taxable_income = ?,tax=?"
-                            + " WHERE ID = ?"
-                                    );
+                            + " (`ID`, `financial_year`, `taxable_income`, `tax`) VALUES (?, ?, ?, ?)");
             // Parse variables into the SQL statement.
-            preparedStatement.setString(1, id);
-            preparedStatement.setString(2, finYear);
-            preparedStatement.setString(3, taxableIncome);
-            preparedStatement.setString(4, tax);
-            preparedStatement.setString(5, finYear);
-            preparedStatement.setString(6, taxableIncome);
-            preparedStatement.setString(7, tax);
-            preparedStatement.setString(8, id);
-            // Execute the SQL statement.
-            preparedStatement.execute();
+            insertStatement.setString(1, id);
+            insertStatement.setString(2, finYear);
+            insertStatement.setString(3, taxableIncome);
+            insertStatement.setString(4, tax);
+            System.out.println(insertStatement);
+            insertStatement.execute();
+
+            // Execute update statement after INSERT IGNORE, so that we can modify existing records easily.
+            // There's probably a more efficient way to do this.
+            PreparedStatement updateStatement = connection.prepareStatement(
+                    "UPDATE "
+                            + tableName
+                            + " SET "
+                            + " financial_year=?,"
+                            + " taxable_income=?,"
+                            + " tax=?"
+                            + " WHERE ID=?");
+            updateStatement.setString(1, finYear);
+            updateStatement.setString(2,taxableIncome);
+            updateStatement.setString(3,tax);
+            updateStatement.setString(4,id);
+            System.out.println(updateStatement);
+            updateStatement.executeUpdate();
+
             // Catch statement for any SQL errors.
         } catch(Exception e) {
             e.printStackTrace();
@@ -170,6 +180,7 @@ public class DBHandler {
                             + "ID = ?"
             );
             preparedStatement.setString(1, id);
+            System.out.println("foo");
             resultSet = preparedStatement.executeQuery();
         }
         catch(SQLException e) {
